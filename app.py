@@ -8,26 +8,20 @@ import os
 
 st.set_page_config(page_title="Inventario Autopartes", layout="wide")
 
+# Encabezado con logo y título
 col_logo, col_title = st.columns([1, 5])
 with col_logo:
     st.image("logo.png", width=120)
 with col_title:
     st.markdown("<h1 style='padding-top: 20px;'>🔧 Inventario Autopartes</h1>", unsafe_allow_html=True)
 
-# Botón de WhatsApp flotante
+# Botón de WhatsApp debajo del título
 st.markdown(
     """
-    <style>
-    .whatsapp-button {
-        position: fixed;
-        bottom: 20px;
-        right: 25px;
-        z-index: 100;
-    }
-    </style>
-    <div class="whatsapp-button">
+    <div style='margin-top: -20px; margin-bottom: 10px;'>
         <a href="https://wa.me/5214772479133" target="_blank">
             <img src="https://img.icons8.com/color/48/000000/whatsapp--v1.png"/>
+            <span style='font-size:18px; vertical-align: middle; margin-left: 8px;'>Contáctanos por WhatsApp</span>
         </a>
     </div>
     """,
