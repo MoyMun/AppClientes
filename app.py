@@ -14,6 +14,26 @@ with col_logo:
 with col_title:
     st.markdown("<h1 style='padding-top: 20px;'>🔧 Inventario Autopartes</h1>", unsafe_allow_html=True)
 
+# Botón de WhatsApp flotante
+st.markdown(
+    """
+    <style>
+    .whatsapp-button {
+        position: fixed;
+        bottom: 20px;
+        right: 25px;
+        z-index: 100;
+    }
+    </style>
+    <div class="whatsapp-button">
+        <a href="https://wa.me/5214772479133" target="_blank">
+            <img src="https://img.icons8.com/color/48/000000/whatsapp--v1.png"/>
+        </a>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 # Cargar credenciales desde secrets.toml
 creds_dict = {
     "type": st.secrets["gcp_service_account"]["type"],
@@ -81,12 +101,19 @@ try:
 
     df = df[(df["Precio Outlet"] >= precio_min) & (df["Precio Outlet"] <= precio_max)]
 
+    # Formatear columna para mostrar el signo $
+    df_formateado = df.copy()
+    df_formateado["Precio Outlet"] = df_formateado["Precio Outlet"].map("${:,.2f}".format)
+
     st.markdown(f"**🔎 Resultados encontrados: {len(df)}**")
-    st.dataframe(df.reset_index(drop=True), use_container_width=True)
+    st.dataframe(df_formateado.reset_index(drop=True), use_container_width=True)
 
     st.subheader("📦 Descargar resultados filtrados")
 
-    csv = df.to_csv(index=False).encode("utf-8")
+    df_to_export = df.copy()
+    df_to_export["Precio Outlet"] = df_to_export["Precio Outlet"].map("${:,.2f}".format)
+
+    csv = df_to_export.to_csv(index=False).encode("utf-8")
     st.download_button(
         label="📄 Descargar como CSV",
         data=csv,
@@ -96,7 +123,7 @@ try:
 
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
-        df.to_excel(writer, index=False, sheet_name="Inventario")
+        df_to_export.to_excel(writer, index=False, sheet_name="Inventario")
 
     st.download_button(
         label="📊 Descargar como Excel",
