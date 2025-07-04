@@ -17,8 +17,7 @@ with col_title:
     st.markdown("<h1 style='padding-top: 20px;'>🔧 Inventario Autopartes</h1>", unsafe_allow_html=True)
 
 # 🧪 DEBUG: Ver archivos en la carpeta para verificar que logo.png esté presente
-st.caption("Archivos en el directorio actual:")
-st.write(os.listdir())
+
 
 # 🔐 Cargar credenciales desde secrets.toml
 creds_dict = {
