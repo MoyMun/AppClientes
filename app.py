@@ -6,20 +6,15 @@ import io
 import xlsxwriter
 import os
 
-# 🖥️ Configuración de pantalla ancha
 st.set_page_config(page_title="Inventario Autopartes", layout="wide")
 
-# 🔍 Mostrar logo y encabezado
 col_logo, col_title = st.columns([1, 5])
 with col_logo:
     st.image("logo.png", width=120)
 with col_title:
     st.markdown("<h1 style='padding-top: 20px;'>🔧 Inventario Autopartes</h1>", unsafe_allow_html=True)
 
-# 🧪 DEBUG: Ver archivos en la carpeta para verificar que logo.png esté presente
-
-
-# 🔐 Cargar credenciales desde secrets.toml
+# Cargar credenciales desde secrets.toml
 creds_dict = {
     "type": st.secrets["gcp_service_account"]["type"],
     "project_id": st.secrets["gcp_service_account"]["project_id"],
@@ -33,19 +28,16 @@ creds_dict = {
     "client_x509_cert_url": st.secrets["gcp_service_account"]["client_x509_cert_url"]
 }
 
-# 🔑 Autenticación con Google Sheets
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 credentials = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(credentials)
 
 try:
-    # 📄 Cargar datos desde Google Sheets
     spreadsheet = client.open("INVENTARIO FINAL AUTOPARTES Phyton")
     sheet = spreadsheet.worksheet("Escaneo c precios de venta")
     data = sheet.get_all_records()
     df = pd.DataFrame(data)
 
-    # 🧼 Limpiar columnas
     df.columns = df.columns.str.strip()
     columnas_deseadas = ["Código", "Descripción", "Precio Outlet", "Marca", "Modelo", "Categoria"]
     df = df[columnas_deseadas]
@@ -62,7 +54,6 @@ try:
         .astype(float)
     )
 
-    # 🎯 Filtros
     st.caption("Filtra por código, descripción, precio o categoría")
     col1, col2 = st.columns(2)
 
@@ -79,7 +70,6 @@ try:
             value=(float(df["Precio Outlet"].min()), float(df["Precio Outlet"].max()))
         )
 
-    # ✅ Aplicar filtros
     if codigo:
         df = df[df["Código"].str.contains(codigo, case=False, na=False)]
 
@@ -91,11 +81,9 @@ try:
 
     df = df[(df["Precio Outlet"] >= precio_min) & (df["Precio Outlet"] <= precio_max)]
 
-    # 📊 Mostrar resultados
     st.markdown(f"**🔎 Resultados encontrados: {len(df)}**")
     st.dataframe(df.reset_index(drop=True), use_container_width=True)
 
-    # 📥 Botones de descarga
     st.subheader("📦 Descargar resultados filtrados")
 
     csv = df.to_csv(index=False).encode("utf-8")
@@ -109,7 +97,7 @@ try:
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
         df.to_excel(writer, index=False, sheet_name="Inventario")
-        writer.save()
+
     st.download_button(
         label="📊 Descargar como Excel",
         data=output.getvalue(),
