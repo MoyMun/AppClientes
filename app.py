@@ -59,12 +59,16 @@ try:
     df = pd.DataFrame(data)
 
     df.columns = df.columns.str.strip()
-    columnas_deseadas = ["Código", "Descripción", "Precio Outlet", "Marca", "Modelo", "Categoria"]
+    columnas_deseadas = ["Código", "Descripción", "Precio Outlet", "Marca", "Modelo", "Categoria", "Estado"]
     df = df[columnas_deseadas]
 
     df["Código"] = df["Código"].fillna("").astype(str).str.strip()
     df["Descripción"] = df["Descripción"].fillna("").astype(str).str.strip()
     df["Categoria"] = df["Categoria"].fillna("").astype(str).str.strip()
+    df["Estado"] = df["Estado"].fillna("").astype(str).str.strip()
+
+    # Filtrar artículos disponibles
+    df = df[df["Estado"].str.lower() != "vendido"]
 
     df["Precio Outlet"] = (
         df["Precio Outlet"]
@@ -106,11 +110,11 @@ try:
     df_formateado["Precio Outlet"] = df_formateado["Precio Outlet"].map("${:,.2f}".format)
 
     st.markdown(f"**🔎 Resultados encontrados: {len(df)}**")
-    st.dataframe(df_formateado.reset_index(drop=True), use_container_width=True)
+    st.dataframe(df_formateado.drop(columns=["Estado"]).reset_index(drop=True), use_container_width=True)
 
     st.subheader("📦 Descargar resultados filtrados")
 
-    df_to_export = df.copy()
+    df_to_export = df.drop(columns=["Estado"]).copy()
     df_to_export["Precio Outlet"] = df_to_export["Precio Outlet"].map("${:,.2f}".format)
 
     csv = df_to_export.to_csv(index=False).encode("utf-8")
